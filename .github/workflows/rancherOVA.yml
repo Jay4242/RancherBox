@@ -18,25 +18,25 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Install VirtualBox
-      uses: virtualbox/actions/virtualbox-install@v1
+      uses: hashicorp/setup-virtualbox-action@v1
       with:
-        version: 6.1.14
+        virtualbox-version: 6.1.14
 
     - name: Create RancherOS Virtual Machine
-      uses: virtualbox/actions/virtualbox-create-vm@v1
+      uses: hashicorp/create-virtualbox-vm-action@v1
       with:
-        name: rancher-archivebox
+        vm-name: rancher-archivebox
         ostype: Red Hat
         memory: 1024
         disk-size: 20000
         disk-format: VDI
 
     - name: Start RancherOS Virtual Machine
-      uses: virtualbox/actions/virtualbox-start-vm@v1
+      uses: hashicorp/start-virtualbox-vm-action@v1
       with:
-        name: rancher-archivebox
+        vm-name: rancher-archivebox
 
-    - name: Install Docker and Docker Compose
+    - name: Install Docker
       uses: docker/setup-docker-action@v1
 
     - name: Clone ArchiveBox Repository
@@ -49,9 +49,9 @@ jobs:
         docker-compose up -d
 
     - name: Package RancherOS Virtual Machine
-      uses: virtualbox/actions/virtualbox-package-vm@v1
+      uses: hashicorp/package-virtualbox-vm-action@v1
       with:
-        name: rancher-archivebox
+        vm-name: rancher-archivebox
         format: OVA
         path: ${{ env.IMAGE_FILE }}
 
