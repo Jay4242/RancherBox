@@ -2,7 +2,8 @@ name: Create RancherOS Image with ArchiveBox
 
 on:
   schedule:
-    - cron: '0 8 * * *' # Run daily at midnight
+    - cron: '0 0 * * *' # Run daily at midnight
+      workflow_dispatch: # Trigger the workflow manually
 
 env:
   IMAGE_FILE: rancher-archivebox.ova
