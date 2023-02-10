@@ -1,0 +1,61 @@
+name: Create RancherOS Image with ArchiveBox
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight
+
+env:
+  IMAGE_FILE: rancher-archivebox.ova
+  IMAGE_URL: s3://my-bucket/images/rancher-archivebox.ova
+
+jobs:
+  create_image:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install VirtualBox
+      uses: virtualbox/actions/virtualbox-install@v1
+      with:
+        version: 6.1.14
+
+    - name: Create RancherOS Virtual Machine
+      uses: virtualbox/actions/virtualbox-create-vm@v1
+      with:
+        name: rancher-archivebox
+        ostype: Red Hat
+        memory: 1024
+        disk-size: 20000
+        disk-format: VDI
+
+    - name: Start RancherOS Virtual Machine
+      uses: virtualbox/actions/virtualbox-start-vm@v1
+      with:
+        name: rancher-archivebox
+
+    - name: Install Docker and Docker Compose
+      uses: docker/setup-docker-action@v1
+
+    - name: Clone ArchiveBox Repository
+      run: |
+        git clone https://github.com/pirate/ArchiveBox.git
+
+    - name: Install ArchiveBox
+      run: |
+        cd ArchiveBox
+        docker-compose up -d
+
+    - name: Package RancherOS Virtual Machine
+      uses: virtualbox/actions/virtualbox-package-vm@v1
+      with:
+        name: rancher-archivebox
+        format: OVA
+        path: ${{ env.IMAGE_FILE }}
+
+    - name: Upload RancherOS Image
+      uses: actions/upload-artifact@v2
+      with:
+        name: rancher-archivebox
+        path: ${{ env.IMAGE_FILE }}
